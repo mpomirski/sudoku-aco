@@ -10,14 +10,28 @@ class Sudoku:
 
     def fixed_peer_values(self, i: int, j: int) -> set[str]:
         fixed_peer_values: set[str] = set()
-        for _i, row in enumerate(self.board):
-            for _j, cell in enumerate(row):
-                if _i == i and cell != self.board[i][j] and len(cell) == 1:
-                    fixed_peer_values.add(cell[0])
-                if _j == j and cell != self.board[i][j] and len(cell) == 1:
-                    fixed_peer_values.add(cell[0])
-                if _i // self._block_size == i // self._block_size and _j // self._block_size == j // self._block_size and cell != self.board[i][j] and len(cell) == 1:
-                    fixed_peer_values.add(cell[0])
+
+        for idx in range(len(self.board)):
+            # Check row
+            row_cell = self.board[i][idx]
+            if idx != j and len(row_cell) == 1:
+                fixed_peer_values.add(row_cell[0])
+            
+            # Check column
+            col_cell = self.board[idx][j]
+            if idx != i and len(col_cell) == 1:
+                fixed_peer_values.add(col_cell[0])
+        
+        # Calculate block coordinates
+        block_start_row = (i // self._block_size) * self._block_size
+        block_start_col = (j // self._block_size) * self._block_size
+        
+        # Check block
+        for _i in range(block_start_row, block_start_row + self._block_size):
+            for _j in range(block_start_col, block_start_col + self._block_size):
+                if (_i != i or _j != j) and len(self.board[_i][_j]) == 1:
+                    fixed_peer_values.add(self.board[_i][_j][0])
+
         return fixed_peer_values
 
     def possible_peer_values(self, i: int, j: int) -> set[str]:
@@ -59,19 +73,30 @@ class Sudoku:
     def set_cell_value(self, i: int, j: int, value: list[str]) -> None:
         self.board[i][j] = value
 
+    def find_unassigned_location(self):
+            for i, row in enumerate(self.board):
+                for j, cell in enumerate(row):
+                    if len(cell) > 1:
+                        return i, j
+            return -1, -1
+
     def brute_force(self):
         self.propagate_constraints()
-        for i, row in enumerate(self.board):
-            for j, cell in enumerate(row):
-                if len(cell) > 1:
-                    previous = self.board
-                    for value in cell:
-                        self.board = previous
-                        self.set_cell_value(i, j, [value])
-                        self.propagate_constraints()
-                        if self.confirm_solution():
-                            return
-                        self.set_cell_value(i, j, list(map(str, range(1,10))))
+        i, j = self.find_unassigned_location()
+        if i == -1 and j == -1:
+            if self.confirm_solution():
+                return True
+            else:
+                return False
+
+        for value in self.board[i][j]:
+            backup = [row[:] for row in self.board]  # Backup the current state
+            self.set_cell_value(i, j, [value])
+            self.propagate_constraints()
+            if self.brute_force():
+                return True
+            self.board = backup  # Restore the previous state
+        return False
 
 
     def confirm_solution(self) -> bool:
