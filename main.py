@@ -98,7 +98,7 @@ def main() -> None:
             sudoku2 = Sudoku(file, SUDOKU_SIZE)
             sudoku2.brute_force()
             end_time2 = time()
-            f.write(f"{end_time1 - start_time1:.2f}\t{end_time2 - start_time2}\n")
+            f.write(f"{end_time1 - start_time1:.2f}\t{end_time2 - start_time2:.2f}\n")
             f.write(f"{solution.confirm_solution()}\t{sudoku2.confirm_solution()}\n")
         f.write("\nEasy:\n")
         for file in easy_files:
@@ -111,7 +111,7 @@ def main() -> None:
             sudoku2 = Sudoku(file, SUDOKU_SIZE)
             sudoku2.brute_force()
             end_time2 = time()
-            f.write(f"{end_time1 - start_time1:.2f}\t{end_time2 - start_time2}\n")
+            f.write(f"{end_time1 - start_time1:.2f}\t{end_time2 - start_time2:.2f}\n")
             f.write(f"{solution.confirm_solution()}\t{sudoku2.confirm_solution()}\n")
         f.write("\nMedium:\n")
         for file in medium_files:
@@ -124,7 +124,7 @@ def main() -> None:
             sudoku2 = Sudoku(file, SUDOKU_SIZE)
             sudoku2.brute_force()
             end_time2 = time()
-            f.write(f"{end_time1 - start_time1:.2f}\t{end_time2 - start_time2}\n")
+            f.write(f"{end_time1 - start_time1:.2f}\t{end_time2 - start_time2:.2f}\n")
             f.write(f"{solution.confirm_solution()}\t{sudoku2.confirm_solution()}\n")
         f.write("\nHard:\n")
         for file in hard_files:
@@ -137,7 +137,7 @@ def main() -> None:
             sudoku2 = Sudoku(file, SUDOKU_SIZE)
             sudoku2.brute_force()
             end_time2 = time()
-            f.write(f"{end_time1 - start_time1:.2f}\t{end_time2 - start_time2}\n")
+            f.write(f"{end_time1 - start_time1:.2f}\t{end_time2 - start_time2:.2f}\n")
             f.write(f"{solution.confirm_solution()}\t{sudoku2.confirm_solution()}\n")
     
 
