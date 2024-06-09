@@ -33,8 +33,9 @@ from Sudoku import Sudoku
 from Ant import Ant
 from constants import SUDOKU_SIZE, C, EVAPORATION_RATE, EVAPORATION_PARAMETER, MAX_ITERS
 from copy import deepcopy
+from time import time
 
-def solve(sudoku: Sudoku) -> Sudoku:
+def solve(sudoku: Sudoku) -> tuple[Sudoku, list[list[list[float]]]]:
     sudoku.propagate_constraints()
     pheromone_matrix: list[list[list[float]]] = [
         [[1/C for i in range(9)] for _ in range(SUDOKU_SIZE)] for _ in range(SUDOKU_SIZE)]
@@ -79,15 +80,64 @@ def solve(sudoku: Sudoku) -> Sudoku:
         if iters == MAX_ITERS:
             print("Max iterations reached")
             sudoku = best_ant.sudoku
-            return sudoku
-    return sudoku
+            return sudoku, pheromone_matrix
+    return sudoku, pheromone_matrix
 
 def main() -> None:
-    sudoku = Sudoku("data/easy_to_solve/example.txt", SUDOKU_SIZE)
-    sudoku.propagate_constraints()
-    solution = solve(sudoku)
-    print(solution)
-    print(f"Is solution correct? {solution.confirm_solution()}")
+    simple_files = ["data/simple_0.txt", "data/simple_1.txt", "data/simple_2.txt", "data/simple_3.txt", "data/simple_4.txt"]
+    easy_files = ["data/easy_0.txt", "data/easy_1.txt","data/easy_2.txt", "data/easy_3.txt", "data/easy_4.txt"]
+    medium_files = ["data/medium_0.txt", "data/medium_1.txt", "data/medium_2.txt", "data/medium_3.txt", "data/medium_4.txt"]
+    hard_files = ["data/hard_0.txt", "data/hard_1.txt", "data/hard_2.txt", "data/hard_3.txt", "data/hard_4.txt"]
+    with open("res10.txt", 'w') as f:
+        f.write("Ant colony\tBrute force\n")
+        f.write("Simple:\n")
+        for file in simple_files:
+            start_time1 = time()
+            sudoku = Sudoku(file, SUDOKU_SIZE)
+            solution, matrix = solve(sudoku)
+            end_time1 = time()
+            start_time2 = time()
+            sudoku2 = Sudoku(file, SUDOKU_SIZE)
+            sudoku2.brute_force()
+            end_time2 = time()
+            f.write(f"{end_time1 - start_time1:.2f}\t{end_time2 - start_time2}\n")
+            f.write(f"{solution.confirm_solution()}\t{sudoku2.confirm_solution()}\n")
+        f.write("Easy:\n")
+        for file in easy_files:
+            start_time1 = time()
+            sudoku = Sudoku(file, SUDOKU_SIZE)
+            solution, matrix = solve(sudoku)
+            end_time1 = time()
+            start_time2 = time()
+            sudoku2 = Sudoku(file, SUDOKU_SIZE)
+            sudoku2.brute_force()
+            end_time2 = time()
+            f.write(f"{end_time1 - start_time1:.2f}\t{end_time2 - start_time2}\n")
+            f.write(f"{solution.confirm_solution()}\t{sudoku2.confirm_solution()}\n")
+        f.write("Medium:\n")
+        for file in medium_files:
+            start_time1 = time()
+            sudoku = Sudoku(file, SUDOKU_SIZE)
+            solution, matrix = solve(sudoku)
+            end_time1 = time()
+            start_time2 = time()
+            sudoku2 = Sudoku(file, SUDOKU_SIZE)
+            sudoku2.brute_force()
+            end_time2 = time()
+            f.write(f"{end_time1 - start_time1:.2f}\t{end_time2 - start_time2}\n")
+            f.write(f"{solution.confirm_solution()}\t{sudoku2.confirm_solution()}\n")
+        f.write("Hard:\n")
+        for file in hard_files:
+            start_time1 = time()
+            sudoku = Sudoku(file, SUDOKU_SIZE)
+            solution, matrix = solve(sudoku)
+            end_time1 = time()
+            start_time2 = time()
+            sudoku2 = Sudoku(file, SUDOKU_SIZE)
+            sudoku2.brute_force()
+            end_time2 = time()
+            f.write(f"{end_time1 - start_time1:.2f}\t{end_time2 - start_time2}\n")
+            f.write(f"{solution.confirm_solution()}\t{sudoku2.confirm_solution()}\n")
     
 
 if __name__ == "__main__":

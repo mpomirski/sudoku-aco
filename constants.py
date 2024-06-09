@@ -6,4 +6,4 @@ EVAPORATION_PARAMETER: float = 0.3
 EVAPORATION_RATE: float = 0.005
 C: int = SUDOKU_SIZE**2
 DEBUG: bool = False
-MAX_ITERS: int = 50
+MAX_ITERS: int = 10

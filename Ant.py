@@ -1,5 +1,6 @@
 from Sudoku import Sudoku
 from constants import SUDOKU_SIZE, KSI, T_0, DEBUG
+from numpy.random import choice
 class Ant:
     def __init__(self, sudoku: Sudoku, global_pheromone_matrix: list[list[list[float]]], cell: list[int], id: int) -> None:
         self.sudoku: Sudoku = sudoku
@@ -16,6 +17,7 @@ class Ant:
             if value == max(self.global_pheromone_matrix[self.current_cell[0]][self.current_cell[1]]):
                 max_value = i+1
         self._chosen_value = str(max_value)
+
         if DEBUG:
             print(f"Ant {self.id} at position {self.current_cell} with pheromones {self.global_pheromone_matrix[self.current_cell[0]][self.current_cell[1]]} chose value {self._chosen_value}")
         return self._chosen_value
@@ -29,7 +31,7 @@ class Ant:
 
     def update_pheromone(self) -> list[list[list[float]]]:
         old_pheromone_value: float = self.global_pheromone_matrix[self.current_cell[0]][self.current_cell[1]][int(self._chosen_value)-1]
-        new_value: float = (1 - KSI) * old_pheromone_value #+ KSI * T_0
+        new_value: float = (1 - KSI) * old_pheromone_value + KSI * T_0
         self.global_pheromone_matrix[self.current_cell[0]][self.current_cell[1]][int(self._chosen_value)-1] = new_value
         if DEBUG:
             print(f"Ant {self.id} updated pheromone for cell {self.current_cell} value {self._chosen_value} from {old_pheromone_value:.5f} to {new_value:.5f}")

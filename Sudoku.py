@@ -49,8 +49,7 @@ class Sudoku:
                         self.board[i][j] = [x for x in cell if x not in peer_values]
 
     #If any values in a cell's value set are in the only possible place in any of the cell's units, then fix that value.
-                        # sudoku[i][j] = [x for x in cell if x not in possible_peer_values(sudoku, i, j)]
-                        # Is this needed?
+                        # self.board[i][j] = [x for x in cell if x not in self.possible_peer_values(i, j)]
                         if len(self.board[i][j]) != len(copy):
                             changes_made = True
             max_iterations -= 1
@@ -60,9 +59,26 @@ class Sudoku:
     def set_cell_value(self, i: int, j: int, value: list[str]) -> None:
         self.board[i][j] = value
 
+    def brute_force(self):
+        self.propagate_constraints()
+        for i, row in enumerate(self.board):
+            for j, cell in enumerate(row):
+                if len(cell) > 1:
+                    previous = self.board
+                    for value in cell:
+                        self.board = previous
+                        self.set_cell_value(i, j, [value])
+                        self.propagate_constraints()
+                        if self.confirm_solution():
+                            return
+                        self.set_cell_value(i, j, list(map(str, range(1,10))))
+
+
     def confirm_solution(self) -> bool:
         # Check rows
         for row in self.board:
+            if any([len(cell) != 1 for cell in row]):
+                return False
             if len(set([x[0] for x in row])) != len(row):
                 return False
         # Check columns
