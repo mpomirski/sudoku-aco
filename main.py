@@ -30,46 +30,64 @@ while puzzle is not solved:
     do best value evaporation
 """
 from Sudoku import Sudoku
-# from Ant import Ant
-SUDOKU_SIZE: int = 9
-NUMBER_OF_ANTS: int = SUDOKU_SIZE**2
-T_0: float = 1/SUDOKU_SIZE**2
-KSI: float = 0.1
-EVAPORATION_RATE: float = 0.3
-C: int = SUDOKU_SIZE**2
+from Ant import Ant
+from constants import SUDOKU_SIZE, C, EVAPORATION_RATE, EVAPORATION_PARAMETER, MAX_ITERS
+from copy import deepcopy
 
 def solve(sudoku: Sudoku) -> Sudoku:
-    raise NotImplementedError
     sudoku.propagate_constraints()
     pheromone_matrix: list[list[list[float]]] = [
         [[1/C for i in range(9)] for _ in range(SUDOKU_SIZE)] for _ in range(SUDOKU_SIZE)]
+    best_pheromone_to_add: float = 0
+    iters: int = 0
     while not sudoku.is_solved():
         ants: list[Ant] = []
         for i in range(sudoku.size):
             for j in range(sudoku.size):
-                ants.append(Ant(sudoku, pheromone_matrix, [i, j]))
+                # Position each ant in a different cell
+                ants.append(Ant(deepcopy(sudoku), pheromone_matrix, [i, j], i*10+j))
 
         for i in range(SUDOKU_SIZE):
             for j in range(SUDOKU_SIZE):
                 for ant in ants:
+                    # Update pheromone matrix for each ant
                     ant.set_new_pheromone_matrix(pheromone_matrix)
-                    if len(ant.sudoku[ant.current_cell[0]][ant.current_cell[1]]) > 1:
+                    # If current cell value not set
+                    if not ant.sudoku.is_fixed(i, j):
+                        # Choose value from current cell's value set, set it and propagate constraints
                         new_value: str = ant.choose_value()
                         ant.set_cell_value(new_value)
+                        # TODO: Check if constraints are correctly propagated
                         ant.propagate_constraints()
+                        # Local pheromone update
                         pheromone_matrix = ant.update_pheromone()
                     ant.move_to_next_cell()
+        # Find best peforming ant
         best_ant: Ant = max(ants, key=lambda x: x.get_score())
+        # Calculate pheromone to add, if it's the best so far, save it
+        best_pheromone_to_add = max(C / (C - best_ant.get_score()), best_pheromone_to_add)
+        # Update pheromones in cells where best ant has fixed the value
         for i in range(SUDOKU_SIZE):
             for j in range(SUDOKU_SIZE):
-                if len(sudoku[i][j]) > 1:
-                    pheromone_matrix[i][j] = [(1 - EVAPORATION_RATE) * x for x in pheromone_matrix[i][j]]
-        # evaporate_best_value()
+                if best_ant.sudoku.is_fixed(i, j):
+                    pheromone_matrix[i][j][int(best_ant.sudoku.board[i][j][0])-1] *= (1 - EVAPORATION_PARAMETER)
+                    pheromone_matrix[i][j][int(best_ant.sudoku.board[i][j][0])-1] += EVAPORATION_PARAMETER * best_pheromone_to_add
+        # Evaporate current best pheromone
+        best_pheromone_to_add *= (1 - EVAPORATION_RATE)
+        print(f"--------------------\nIteration {iters}\n--------------------")
+        iters += 1
+        if iters == MAX_ITERS:
+            print("Max iterations reached")
+            sudoku = best_ant.sudoku
+            return sudoku
+    return sudoku
 
 def main() -> None:
     sudoku = Sudoku("data/easy_to_solve/example.txt", SUDOKU_SIZE)
     sudoku.propagate_constraints()
-    print(sudoku)
+    solution = solve(sudoku)
+    print(solution)
+    print(f"Is solution correct? {solution.confirm_solution()}")
     
 
 if __name__ == "__main__":

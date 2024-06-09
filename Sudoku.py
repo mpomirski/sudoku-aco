@@ -32,6 +32,9 @@ class Sudoku:
                     possible_peer_values.update(cell)
         return possible_peer_values
 
+    def is_fixed(self, i: int, j: int) -> bool:
+        return len(self.board[i][j]) == 1
+
     def propagate_constraints(self) -> None:
         changes_made = True
         max_iterations = 100
@@ -56,6 +59,36 @@ class Sudoku:
 
     def set_cell_value(self, i: int, j: int, value: list[str]) -> None:
         self.board[i][j] = value
+
+    def confirm_solution(self) -> bool:
+        # Check rows
+        for row in self.board:
+            if len(set([x[0] for x in row])) != len(row):
+                return False
+        # Check columns
+        cols: list[list[list[str]]] = []
+        for i in range(self.size):
+            col: list[list[str]] = []
+            for row in self.board:
+                col.append(row[i])
+            cols.append(col)
+        for col in cols:
+            if len(set([x[0] for x in col])) != len(col):
+                return False
+        # Check blocks
+        blocks: list[list[list[str]]] = []
+        for i in range(self._block_size):
+            for j in range(self._block_size):
+                block: list[list[str]] = []
+                for row in self.board[i*self._block_size:(i+1)*self._block_size]:
+                    block.extend(row[j*self._block_size:(j+1)*self._block_size])
+                blocks.append(block)
+        for block in blocks:
+            if len(set([x[0] for x in block])) != len(block):
+                return False
+        return True
+        
+
 
 
     def __repr__(self) -> str:
